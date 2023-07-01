@@ -1,0 +1,11 @@
+.build
+.mbed
+projectfiles
+*.py*
+mbed-os
+BUILD
+
+BSP_DISCO_F429ZI
+LCD_DISCO_F429ZI
+SDRAM_DISCO_F429ZI
+TS_DISCO_F429ZI
