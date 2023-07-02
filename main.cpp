@@ -13,7 +13,12 @@ using namespace std::chrono_literals;
 #include "helpers.hpp"
 
 
-#define SWIPE_SCALING 4
+#define STATIC_Z_OFFSET -3
+
+#define SWIPE_SCALING   4
+
+#define TEXT_LAYER      0
+#define CUBE_LAYER      1
 
 
 
@@ -68,7 +73,10 @@ int main()
     LCD.Init();
 
     LCD.SetFont(&Font24);
-    LCD.SetTextColor(LCD_COLOR_BLACK);
+    LCD.SetTextColor(LCD_COLOR_RED);
+    
+    BSP_LCD_SetTransparency(TEXT_LAYER, 128u);
+    BSP_LCD_SetTransparency(CUBE_LAYER, 128u);
 
     // touch screen
     TS.Init(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -109,6 +117,7 @@ int main()
         prev_ts_state = current_ts_state;
 
         // clear screen before redrawing
+        LCD.SelectLayer(CUBE_LAYER);
         LCD.Clear(LCD_COLOR_WHITE);
 
         // rotate, move and draw points
@@ -118,6 +127,10 @@ int main()
 
             drawLine(altered_vertices[vertex_idcs[0]], altered_vertices[vertex_idcs[1]]);
         }
+
+        // clear screen before rewriting
+        LCD.SelectLayer(TEXT_LAYER);
+        LCD.Clear(LCD_COLOR_WHITE);
 
         // write current angle to screen
         sprintf(angle_buffer, "H:% 3d", angles[x_angle_idx]);
@@ -147,7 +160,7 @@ void preparePoints(Vec3d* altered_vertices, int16_t x_angle_idx, int16_t y_angle
         vertex = rotateXCenter(vertex, y_angle_idx);
         vertex = rotateYCenter(vertex, x_angle_idx);
 
-        vertex = move(vertex, 0, 0, -4);
+        vertex = move(vertex, 0, 0, STATIC_Z_OFFSET);
 
         altered_vertices[i] = vertex;
     }
