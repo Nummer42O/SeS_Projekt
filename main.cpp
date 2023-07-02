@@ -1,4 +1,3 @@
-#include "ThisThread.h"
 #include "mbed.h"
 #include "LCD_DISCO_F429ZI.h"
 #include "TS_DISCO_F429ZI.h"
@@ -7,8 +6,6 @@
 #include "stm32f429i_discovery_ts.h"
 
 #include <iostream>
-#include <chrono>
-using namespace std::chrono_literals;
 
 #include "helpers.hpp"
 
@@ -92,10 +89,6 @@ int main()
     char angle_buffer[8];
 
     while (true) {
-        // start timer
-        timer.reset();
-        timer.start();
-
         // indicate to work
         setProgState(BUSY);
 
@@ -140,16 +133,6 @@ int main()
 
         // indicate idle/ready phase
         setProgState(READY);
-
-        // stop timer
-        timer.stop();
-
-        // sleep the rest of the time
-        // time target are ~67ms to achive 15fps
-        std::chrono::milliseconds time = std::chrono::duration_cast<std::chrono::milliseconds>(timer.elapsed_time());
-        std::chrono::milliseconds diff = 67ms - time;
-        // printf("elapsed time: %lldms\tremaining time: %lldms\n", time.count(), diff.count());
-        ThisThread::sleep_for(diff);
     }
 }
 
@@ -170,10 +153,16 @@ void drawLine(Vec3d a, Vec3d b) {
     Vec2d a_2d = getScreenCoordsFrom3d(a),
           b_2d = getScreenCoordsFrom3d(b);
 
+    printf("Line from A=(%d, %d) to B=(%d, %d)", (int)a_2d.x, (int)a_2d.y, (int)b_2d.x, (int)b_2d.y);
+
     if (!checkInBounds(a_2d) || !checkInBounds(b_2d))
     {
+        printf(" got skipped.\n");
         //TODO: not optimal, the visible rest of the line could be interoplated
         return;
+    } else
+    {
+        printf(" gets drawn.\n");
     }
 
     LCD.DrawLine(a_2d.x, a_2d.y, b_2d.x, b_2d.y);
